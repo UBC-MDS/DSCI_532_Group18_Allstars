@@ -1,2 +1,4 @@
-# DSCI_532_Group18_Allstars
+# Country Happiness Data Visualization App
 Data Visualization group project
+
+authors: Deepak Sidhu, Nicholas Wu, William Xu, Zeliha Ural Merpez
