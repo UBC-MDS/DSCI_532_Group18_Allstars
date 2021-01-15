@@ -15,14 +15,14 @@ app.config['suppress_callback_exceptions'] = True
 server = app.server
 
 app.title = 'Immigration Agency'
-df = pd.read_csv(os.path.join(current_directory, '../data/happiness_2020.csv'))
+df = pd.read_csv(os.path.join(current_directory, '../data/happiness_merge_all.csv'))
 numeric_columns = list(df.columns)[2:]
 
 def plot_altair(column_name, region = 'Western Europe' ,df = df.copy()):
     region_df = df[df['Regional indicator']==region]
     chart = alt.Chart(region_df).mark_bar(color = 'darkslategray').encode(
         x = alt.X(column_name),
-        y = alt.Y('Country name', sort = '-x', title = ''),
+        y = alt.Y('Country', sort = '-x', title = ''),
         )
     return chart.to_html()
 
