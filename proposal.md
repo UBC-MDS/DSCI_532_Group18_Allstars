@@ -53,7 +53,7 @@ Some of the research questions we are hoping to answer for our customer
 include:
 
 1. Rankings of countries in different region with respect to user 
-preferences such as social support and freedome to life choices. 
+preferences such as social support and freedom to life choices. 
 
 2. Rankings of population density within regions.
 
