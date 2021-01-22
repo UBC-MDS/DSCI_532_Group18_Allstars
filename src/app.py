@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output
 import numpy as np
 import os
 import dash_bootstrap_components as dbc
+from vega_datasets import data
 
 
 current_directory = os.path.dirname(__file__)
@@ -24,6 +25,28 @@ df = pd.read_csv(
 numeric_columns = list(df.columns)[2:]
 #getting region names to be shown in dropdown menu
 region_names = list(df["Regional indicator"].unique())
+
+def plot_1_1(country_ids=df.copy()):
+    world = data.world_110m()
+    world_map = alt.topo_feature(data.world_110m.url, 'countries')
+    
+    country_ids.dropna(subset=['id'])
+    country_ids = country_ids[country_ids['Ladder score'] != "mo"].sort_values(by="Ladder score", ascending = False)
+    country_ids = country_ids.reset_index(drop = True)
+    country_ids['Hapiness World Rank'] = pd.Series(range(1,101))
+    
+    map_click = alt.selection_multi()
+    chart = (
+    (alt.Chart(world_map).mark_geoshape().transform_lookup(
+        lookup='id',
+        from_=alt.LookupData(country_ids, 'id', ['Country', 'Hapiness World Rank']))
+     .encode(tooltip=['Country:N', 'Hapiness World Rank:Q'], 
+             color='Hapiness World Rank:Q',
+             opacity=alt.condition(map_click, alt.value(1), alt.value(0.2)))
+     .add_selection(map_click)
+     .project('equalEarth', scale=90))
+    )
+    return chart.to_html()
 
 def plot_2_1(column_name, region="Western Europe", df=df.copy()):
     """[Creates the bar plot for the selected region and feature]
@@ -126,11 +149,11 @@ app.layout = dbc.Container([
         ]),
         dbc.Col([
             dbc.Row([
-                dbc.Card(
-                    dbc.CardBody(html.H5('World Map')),
-                    color = 'info', inverse = True, style = {'text-align':'center'}
-
-                )
+                html.Iframe(
+                    id="figure_1_1",
+                    style={"border-width": "0", "width": "100%", "height": "600px"},
+                    srcDoc=plot_1_1(),
+                )                
             ]),
             dbc.Row([
                 html.Iframe(
