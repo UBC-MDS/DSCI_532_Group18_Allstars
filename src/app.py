@@ -22,11 +22,37 @@ df = pd.read_csv(
     os.path.join(current_directory, "../data/processed/happiness_merge_all.csv")
 )
 #getting numeric columns to be shown in dropdown menu
-numeric_columns = list(df.columns)[2:]
+preferences = ['Ladder score',
+ 'Logged GDP per capita',
+ 'Social support',
+ 'Healthy life expectancy',
+ 'Freedom to make life choices',
+ 'Generosity',
+ 'Perceptions of corruption',
+ 'Population (2020)',
+ 'Density (P/Km²)',
+ 'Land Area (Km²)',
+ 'Migrants (net)',
+ 'Cost of Living Index',
+ 'Rent Index',
+ 'Cost of Living Plus Rent Index',
+ 'Groceries Index',
+ 'Restaurant Price Index',
+ 'Local Purchasing Power Index']
 #getting region names to be shown in dropdown menu
 region_names = list(df["Regional indicator"].unique())
 
-def plot_1_1(country_ids=df.copy()):
+def worldmap(country_ids=df.copy()):
+    """[Create worldmap for country happiness scores]
+    Parameters
+    ----------
+    country_ids : [pandas dataframe], optional
+        [dataframe to be used in worldmap plot], by default df.copy()
+    Returns
+    -------
+    [altair chart]
+        [altair chart to html]
+    """  
     world = data.world_110m()
     world_map = alt.topo_feature(data.world_110m.url, 'countries')
     
@@ -43,12 +69,14 @@ def plot_1_1(country_ids=df.copy()):
      .encode(tooltip=['Country:N', 'Hapiness World Rank:Q'], 
              color='Hapiness World Rank:Q',
              opacity=alt.condition(map_click, alt.value(1), alt.value(0.2)))
+     .configure_legend(orient='bottom')
+     #.properties(width=370, height=300)
      .add_selection(map_click)
      .project('equalEarth', scale=90))
     )
     return chart.to_html()
 
-def plot_2_1(column_name, region="Western Europe", df=df.copy()):
+def selection_barplot(column_name, region="Western Europe", df=df.copy()):
     """[Creates the bar plot for the selected region and feature]
 
     Parameters
@@ -76,7 +104,7 @@ def plot_2_1(column_name, region="Western Europe", df=df.copy()):
     )
     return chart.to_html()
 
-def plot_1_2(region = 'Western Europe', df = df.copy()):
+def connected_charts(region = 'Western Europe', df = df.copy()):
     """[Creates two connected altair charts, one for happiness score and other for population density for countries in selected region]
 
     Parameters
@@ -105,7 +133,7 @@ def plot_1_2(region = 'Western Europe', df = df.copy()):
         x = 'Ladder score',
         y = alt.Y('Country', sort = '-x'),
         size = alt.condition(click, alt.value(15), alt.value(2))
-        )
+        ).properties(width=260)
 
     chart = base.mark_errorbar().encode(
         y = alt.Y('Country', sort = alt.EncodingSortField(field="Ladder score", order = "descending")),
@@ -113,7 +141,7 @@ def plot_1_2(region = 'Western Europe', df = df.copy()):
         x2 = 'xmax:Q',
         color = alt.condition(click, 'Country', alt.value('lightgray')),
         size = alt.condition(click, alt.value(7), alt.value(1))
-        )
+        ).properties(width=260)
 
     error_chart = (chart + points)
 
@@ -124,17 +152,27 @@ def plot_1_2(region = 'Western Europe', df = df.copy()):
             x = alt.X('Density (P/Km²)'),
             y = alt.Y('Country', sort='-x', title=""),
             color = 'Country',
-            opacity = alt.condition(click, alt.value(1), alt.value(0.1)))).add_selection(click)
+            opacity = alt.condition(click, alt.value(1), alt.value(0.1)))
+        .properties(width=260)    
+            ).add_selection(click)
     
     combined_chart = (error_chart | density_chart)
     return combined_chart.to_html()
 
 
 app.layout = dbc.Container([
-    dbc.Row([
+    html.H1(
+        children='Country Happiness Visualization',
+        style={
+            'textAlign': 'center',
+            'color': 'black'
+        }
+    ),
+    html.Br(),
 
+    dbc.Row([
         dbc.Col([
-            html.H1("Immigration Agency"),
+            html.H2("Immigration Agency"),
             dcc.Dropdown(
                 id="region",
                 value="Western Europe",
@@ -143,38 +181,34 @@ app.layout = dbc.Container([
             dcc.Dropdown(
                 id="column_name",
                 value="Ladder score",
-                options=[{"label": name, "value": name} for name in numeric_columns],
-            )
-
-        ]),
+                options=[{"label": name, "value": name} for name in preferences],
+            )], md=2),
         dbc.Col([
-            dbc.Row([
-                html.Iframe(
-                    id="figure_1_1",
-                    style={"border-width": "0", "width": "100%", "height": "600px"},
-                    srcDoc=plot_1_1(),
+            html.Iframe(
+                id="figure_1_1", 
+                style={"border-width": "0", "width": "100%", "height": "500px"},
+                srcDoc=worldmap(),
                 )                
-            ]),
-            dbc.Row([
-                html.Iframe(
-                    id="figure_0",
-                    style={"border-width": "0", "width": "100%", "height": "600px"},
-                    srcDoc=plot_2_1(column_name="Ladder score", region="Western Europe"),
-                )
-            ])
-        ]),
+            ], md=6),
         dbc.Col([
-            dbc.Row([
-                html.Iframe(
-                    id="figure_1_2",
-                    style={"border-width": "0", "width": "100%", "height": "600px"},
-                    srcDoc=plot_1_2(region="Western Europe"),
+            html.Iframe(
+                id="figure_0",
+                style={"border-width": "0", "width": "200%", "height": "500px"},
+                srcDoc=selection_barplot(column_name="Ladder score", region="Western Europe")
+            )
+        ])
+        ],no_gutters=True),
+    dbc.Row([
+        dbc.Col([
+            html.Iframe(
+                id="figure_1_2",
+                style={"border-width": "0", "width": "80%", "height": "500px"},
+                srcDoc=connected_charts(region="Western Europe"),
                 )
             ])
-
         ])
-    ])
 ])
+
 
 
 
@@ -187,7 +221,7 @@ app.layout = dbc.Container([
 
 
 def update_output(col_name, region):
-    return plot_2_1(col_name, region), plot_1_2(region)
+    return selection_barplot(col_name, region), connected_charts(region)
 
 
 if __name__ == "__main__":
