@@ -7,21 +7,41 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import numpy as np
 import os
+import dash_bootstrap_components as dbc
+
 
 current_directory = os.path.dirname(__file__)
 
-app = dash.Dash(__name__, assets_folder="assets")
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config["suppress_callback_exceptions"] = True
 server = app.server
 
-app.title = "Immigration Agency"
+#reading the csv file
 df = pd.read_csv(
     os.path.join(current_directory, "../data/processed/happiness_merge_all.csv")
 )
+#getting numeric columns to be shown in dropdown menu
 numeric_columns = list(df.columns)[2:]
+#getting region names to be shown in dropdown menu
+region_names = list(df["Regional indicator"].unique())
 
+def plot_2_1(column_name, region="Western Europe", df=df.copy()):
+    """[Creates the bar plot for the selected region and feature]
 
-def plot_altair(column_name, region="Western Europe", df=df.copy()):
+    Parameters
+    ----------
+    column_name : [str] 
+        [selected feature]
+    region : str, optional
+        [the region of World], by default "Western Europe"
+    df : [pandas data frame], optional
+        [data frame to be used in bar plot], by default df.copy()
+
+    Returns
+    -------
+    [altair chart]
+        [altair chart to html]
+    """
     region_df = df[df["Regional indicator"] == region]
     chart = (
         alt.Chart(region_df)
@@ -33,38 +53,118 @@ def plot_altair(column_name, region="Western Europe", df=df.copy()):
     )
     return chart.to_html()
 
+def plot_1_2(region = 'Western Europe', df = df.copy()):
+    """[Creates two connected altair charts, one for happiness score and other for population density for countries in selected region]
 
-region_names = list(df["Regional indicator"].unique())
+    Parameters
+    ----------
+    region : str, optional
+        [the region of the World], by default 'Western Europe'
+    df : [pandas data frame], optional
+        [data frame to be used in bar plot], by default df.copy()
 
-app.layout = html.Div(
-    [
-        html.H1("Immigration Agency"),
-        dcc.Dropdown(
-            id="region",
-            value="Western Europe",
-            options=[{"label": name, "value": name} for name in region_names],
-        ),
-        dcc.Dropdown(
-            id="column_name",
-            value="Ladder score",
-            options=[{"label": name, "value": name} for name in numeric_columns],
-        ),
-        html.Iframe(
-            id="figure_0",
-            style={"border-width": "0", "width": "100%", "height": "600px"},
-            srcDoc=plot_altair(column_name="Ladder score", region="Western Europe"),
-        ),
-    ]
-)
+    Returns
+    -------
+    [altair chart]
+        [combined altair charts with added selection by union]
+    """
+    region_df = df[df['Regional indicator']==region]
+    sorted_df = region_df.sort_values(by=['Ladder score'])
+
+    click = alt.selection_multi(fields = ['Country'], resolve = 'union')
+    
+    base = alt.Chart(sorted_df).transform_calculate(
+        xmin="datum.lowerwhisker",
+        xmax="datum.upperwhisker"
+    ).add_selection(click)
+
+    points = base.mark_point(shape = "diamond").encode(
+        x = 'Ladder score',
+        y = alt.Y('Country', sort = '-x'),
+        size = alt.condition(click, alt.value(15), alt.value(2))
+        )
+
+    chart = base.mark_errorbar().encode(
+        y = alt.Y('Country', sort = alt.EncodingSortField(field="Ladder score", order = "descending")),
+        x = alt.X('xmin:Q', scale = alt.Scale(zero = False), title='Happiness Score'),
+        x2 = 'xmax:Q',
+        color = alt.condition(click, 'Country', alt.value('lightgray')),
+        size = alt.condition(click, alt.value(7), alt.value(1))
+        )
+
+    error_chart = (chart + points)
+
+    density_chart = (
+        alt.Chart(region_df)
+        .mark_bar()
+        .encode(
+            x = alt.X('Density (P/Km²)'),
+            y = alt.Y('Country', sort='-x', title=""),
+            color = 'Country',
+            opacity = alt.condition(click, alt.value(1), alt.value(0.1)))).add_selection(click)
+    
+    combined_chart = (error_chart | density_chart)
+    return combined_chart.to_html()
+
+
+app.layout = dbc.Container([
+    dbc.Row([
+
+        dbc.Col([
+            html.H1("Immigration Agency"),
+            dcc.Dropdown(
+                id="region",
+                value="Western Europe",
+                options=[{"label": name, "value": name} for name in region_names],
+            ),
+            dcc.Dropdown(
+                id="column_name",
+                value="Ladder score",
+                options=[{"label": name, "value": name} for name in numeric_columns],
+            )
+
+        ]),
+        dbc.Col([
+            dbc.Row([
+                dbc.Card(
+                    dbc.CardBody(html.H5('World Map')),
+                    color = 'info', inverse = True, style = {'text-align':'center'}
+
+                )
+            ]),
+            dbc.Row([
+                html.Iframe(
+                    id="figure_0",
+                    style={"border-width": "0", "width": "100%", "height": "600px"},
+                    srcDoc=plot_2_1(column_name="Ladder score", region="Western Europe"),
+                )
+            ])
+        ]),
+        dbc.Col([
+            dbc.Row([
+                html.Iframe(
+                    id="figure_1_2",
+                    style={"border-width": "0", "width": "100%", "height": "600px"},
+                    srcDoc=plot_1_2(region="Western Europe"),
+                )
+            ])
+
+        ])
+    ])
+])
+
 
 
 @app.callback(
     Output("figure_0", "srcDoc"),
+    Output("figure_1_2", "srcDoc"),
     Input("column_name", "value"),
     Input("region", "value"),
-)
+) 
+
+
 def update_output(col_name, region):
-    return plot_altair(col_name, region)
+    return plot_2_1(col_name, region), plot_1_2(region)
 
 
 if __name__ == "__main__":
