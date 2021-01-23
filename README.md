@@ -48,6 +48,6 @@ If you would like to install our app and run it locally using Altair and Dash. W
   - plotly==4.14.3
 
 ## Thank you
-Thank you so much(Merci beaucoup!Tack så mycket) for visiting out project repository. We hope that you will join us on this fabuluous journey to find the country you love for immigration!
+Thank you so much(Merci beaucoup! Tack så mycket!) for visiting out project repository. We hope that you will join us on this fabuluous journey to find the country you love for immigration!
 
 [link_william]: https://github.com/williamxu7
