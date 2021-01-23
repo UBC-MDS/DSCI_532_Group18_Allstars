@@ -21,7 +21,7 @@ server = app.server
 df = pd.read_csv(
     os.path.join(current_directory, "../data/processed/happiness_merge_all.csv")
 )
-#getting numeric columns to be shown in dropdown menu
+#getting columns as preferences to be shown in dropdown menu
 preferences = ['Ladder score',
  'Logged GDP per capita',
  'Social support',
@@ -39,6 +39,7 @@ preferences = ['Ladder score',
  'Groceries Index',
  'Restaurant Price Index',
  'Local Purchasing Power Index']
+
 #getting region names to be shown in dropdown menu
 region_names = list(df["Regional indicator"].unique())
 
@@ -136,7 +137,7 @@ def connected_charts(region = 'Western Europe', df = df.copy()):
         ).properties(width=260)
 
     chart = base.mark_errorbar().encode(
-        y = alt.Y('Country', sort = alt.EncodingSortField(field="Ladder score", order = "descending")),
+        y = alt.Y('Country', title="", sort = alt.EncodingSortField(field="Ladder score", order = "descending")),
         x = alt.X('xmin:Q', scale = alt.Scale(zero = False), title='Happiness Score'),
         x2 = 'xmax:Q',
         color = alt.condition(click, 'Country', alt.value('lightgray')),
@@ -218,8 +219,6 @@ app.layout = dbc.Container([
     Input("column_name", "value"),
     Input("region", "value"),
 ) 
-
-
 def update_output(col_name, region):
     return selection_barplot(col_name, region), connected_charts(region)
 
