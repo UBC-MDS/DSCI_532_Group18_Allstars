@@ -6,9 +6,10 @@ authors: Deepak Sidhu, Nicholas Wu, William Xu, Zeliha Ural Merpez
 Welcome! 🎉  Bienvenue! 🎈 Välkommen 👋
 
 Thank you for visiting the Country Happiness Visualization app project repository. 
-<br> Here is a link to our app: https://immigration-dash-app.herokuapp.com/
-<br> Below is what our app looks like in development mode:
-<br>![Image of our app](https://media.giphy.com/media/ViJVdOAK2afI3049Zr/giphy.gif)
+<br> *Here is a link to our app:* https://immigration-dash-app.herokuapp.com/
+<br>
+<br> *Below is what our app looks like in development mode:*
+<img src="images/happiness_app.gif" />
 
 
 This document is a hub for more information about our app. You can click to links in the sections below, or just scroll down to explore.
@@ -37,7 +38,7 @@ If you think you can help in helping us develop our dashboard with potential con
 You can also contact [William][link_william] by email.
 
 ## Installation
-If you would like to install our app and run it locally using Altair and Dash. We have included an [package requirement file](requirements.txt) and [environment file](happiness.yaml) for your reference.
+If you would like to install our app and run it locally using Altair and Dash. We have included an [package requirement file](requirements.txt) and [environment file](environment.yaml) for your reference.
 - Packages:
   - pandas
   - gunicorn
