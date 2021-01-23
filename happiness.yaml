@@ -1,0 +1,14 @@
+name: 'happiness'
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - ipykernel
+  - pandas
+  - vega_datasets
+  - plotly==4.14.3
+  - pip
+  - pip:
+    - dash==1.18.1
+    - dash_bootstrap_components
+    - gunicorn
