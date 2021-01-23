@@ -6,6 +6,7 @@ authors: Deepak Sidhu, Nicholas Wu, William Xu, Zeliha Ural Merpez
 Welcome! 🎉  Bienvenue! 🎈 Välkommen 👋
 
 Thank you for visiting the Country Happiness Visualization app project repository. 
+<br>
 <br> *Here is a link to our app:* https://immigration-dash-app.herokuapp.com/
 <br>
 <br> *Below is what our app looks like in development mode:*
