@@ -97,10 +97,11 @@ def selection_barplot(column_name, region="Western Europe", df=df.copy()):
     region_df = df[df["Regional indicator"] == region]
     chart = (
         alt.Chart(region_df, title="Countries within the Region, Ranked by Your Preference")
-        .mark_bar(color="darkslategray")
+        .mark_bar()
         .encode(
             x=alt.X(column_name),
             y=alt.Y("Country", sort="-x", title=""),
+            color=alt.Color("Country", scale = alt.Scale(scheme='tealblues'))
         ).configure_title(fontSize=16)
     )
     return chart.to_html()
@@ -140,7 +141,7 @@ def connected_charts(region = 'Western Europe', df = df.copy()):
         y = alt.Y('Country', title="", sort = alt.EncodingSortField(field="Ladder score", order = "descending")),
         x = alt.X('xmin:Q', scale = alt.Scale(zero = False), title='Happiness Score'),
         x2 = 'xmax:Q',
-        color = alt.condition(click, 'Country', alt.value('lightturquoise')),
+        color = alt.condition(click, 'Country', alt.value('lightturquoise'), scale = alt.Scale(scheme='tealblues')),
         size = alt.condition(click, alt.value(7), alt.value(1))
         ).properties(width=270)
 
@@ -183,44 +184,29 @@ app.layout = dbc.Container([
 
     dbc.Row([
         dbc.Col([
-            html.H6("Select a region to explore:",         
-            style={
-            'textAlign': 'left',
-            'color': 'black',
-            'border': '1px solid #d3d3d3', 
-            'border-radius': '10px',
-            'background-color': 'turquoise'
-        }),
+            html.H6("Select a region to explore:"),
             dcc.Dropdown(
                 id="region",
                 value="Western Europe",
                 options=[{"label": name, "value": name} for name in region_names],
             ),
-            html.Br(),
-            html.Br(),
-            html.H6("Select your preference to rank:", 
-            style={
-            'textAlign': 'left',
-            'color': 'black',
-            'border': '1px solid #d3d3d3', 
-            'border-radius': '10px',
-            'background-color': 'turquoise'
-        }),
+        ]),
+        dbc.Col([
+            html.H6("Select your preference to rank:"),
 
             dcc.Dropdown(
                 id="column_name",
                 value="Ladder score",
                 options=[{"label": name, "value": name} for name in preferences],
-            )], md=2),
+            )
+        ])
+    ], id = "topbar"),
+
+    html.Br(),
+
+    dbc.Row([
         dbc.Col([
-            html.H6("Click on the worldmap to see happiness score index:", 
-            style={
-            'textAlign': 'left',
-            'color': 'black',
-            'border': '1px solid #d3d3d3', 
-            'border-radius': '10px',
-            'background-color': 'turquoise'
-        }),
+            html.H6("Click on the worldmap to see happiness score index:"),
             html.Iframe(
                 id="figure_1_1", 
                 style={"border-width": "0", "width": "100%", "height": "500px"},
@@ -228,31 +214,25 @@ app.layout = dbc.Container([
                 )                
             ], md=6),
         dbc.Col([
+            html.H6("Countries within the selected region with respect to preference:"),
             html.Iframe(
                 id="figure_0",
                 style={"border-width": "0", "width": "200%", "height": "500px"},
                 srcDoc=selection_barplot(column_name="Ladder score", region="Western Europe")
             )
         ])
-        ],no_gutters=True),
+        ], id = "row_1", no_gutters=True),
 
     dbc.Row([
         dbc.Col([
-            html.H6("Country-to-Country Comparison: click on the plot to make direct comparison between countries", 
-            style={
-            'textAlign': 'left',
-            'color': 'black',
-            'border': '1px solid #d3d3d3', 
-            'border-radius': '10px',
-            'background-color': 'turquoise'
-            }),
+            html.H6("Country-to-Country Comparison: click on the plot to make direct comparison between countries:"),
             html.Iframe(
                 id="figure_1_2",
                 style={"border-width": "0", "width": "80%", "height": "500px"},
                 srcDoc=connected_charts(region="Western Europe"),
                 )
-            ])
         ])
+    ], id = "row_2")
 ])
 
 

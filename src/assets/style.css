@@ -1,0 +1,55 @@
+#site_header {
+  text-align: center;
+  margin-top: 25px;
+  color: white;
+  border-radius: 10px;
+  background-color: turquoise;
+  border: 1px solid #d3d3d3; 
+}
+
+#topbar {
+  text-align: center;
+}
+
+#topbar>div{
+  width: 25%;
+  padding-left: 10px;
+  display: inline-block;
+}
+
+#topbar H6{
+  color: black;
+  background-color: turquoise;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+#row_1 H6{
+  color: black;
+  background-color: turquoise;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+#row_1>div{
+  width: 25%;
+  padding-left: 10px;
+  display: inline-block;
+}
+#world_map {
+    margin: auto;
+}
+
+#row_2 H6{
+  color: black;
+  background-color: turquoise;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+
+#data_table>div{
+    width: 40%;
+    display: inline-block;
+}
+
