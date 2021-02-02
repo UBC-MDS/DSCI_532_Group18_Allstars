@@ -36,6 +36,12 @@
   padding-left: 10px;
   display: inline-block;
 }
+
+#row_1 P{
+  font-weight: bold;
+  color: gray;
+}
+
 #world_map {
     margin: auto;
 }
