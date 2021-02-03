@@ -46,7 +46,7 @@ preferences = ['Ladder score',
 region_names = list(df["Regional indicator"].unique())
 region_names.append("Top 20 Countries")
 
-def worldmap(country_ids=df.copy()):
+def worldmap(region = "Top 20 Countries", order = "all", country_ids=df.copy()):
     """[Create worldmap for country happiness scores]
     Parameters
     ----------
@@ -59,25 +59,22 @@ def worldmap(country_ids=df.copy()):
     """  
     world = data.world_110m()
     world_map = alt.topo_feature(data.world_110m.url, 'countries')
-    
     country_ids.dropna(subset=['id'])
     country_ids = country_ids[country_ids['Ladder score'] != "mo"].sort_values(by="Ladder score", ascending = False)
     country_ids = country_ids.reset_index(drop = True)
     country_ids['Hapiness World Rank'] = pd.Series(range(1,101))
+    if region != "Top 20 Countries" and order != "all":
+        country_ids = country_ids[country_ids["Regional indicator"]==region]
 
-    
-    #map_click = alt.selection_multi()
     chart = (
     (alt.Chart(world_map, title="World Happiness Ranking").mark_geoshape().transform_lookup(
         lookup='id',
         from_=alt.LookupData(country_ids, 'id', ['Country', 'Hapiness World Rank']))
      .encode(tooltip=['Country:N', 'Hapiness World Rank:Q'], 
-             color='Hapiness World Rank:Q',
-             #opacity=alt.condition(map_click, alt.value(1), alt.value(0.2))
+             color='Hapiness World Rank:Q'
             )
      .configure_legend(orient='bottom')
      .configure_title(fontSize=20)
-     #.add_selection(map_click)
      .project('equalEarth', scale=90))
     )
     return chart.to_html()
@@ -187,7 +184,6 @@ def connected_charts(region = 'Top 20 Countries', df = df.copy()):
     combined_chart = (error_chart | density_chart)
     return combined_chart.to_html()
 
-
 app.layout = dbc.Container([
     html.H1(
         children='Country Happiness Visualization',
@@ -233,10 +229,19 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H6("Click on the worldmap to see happiness score index:"),
-            html.P("Note: Only the countries with data available are showing in world map."),  
+            dcc.RadioItems(
+                id="order_world",
+                options=[
+                    {"label": "Show all countries", "value": "all"},
+                    {"label": "Show filtered countries", "value": "filtered"}
+                ],
+                value="all",
+                inputStyle={"margin-left": "50px", "margin-right": "10px"},
+            ), 
+            html.P("Note: Only the countries with data available are showing in world map."), 
             html.Iframe(
                 id="figure_1_1", 
-                style={"border-width": "0", "width": "100%", "height": "500px"},
+                style={"border-width": "0", "width": "100%", "height": "470px", "margin-left":"50px"},
                 srcDoc=worldmap(),
                 ),     
             ], md=6),
@@ -245,15 +250,15 @@ app.layout = dbc.Container([
             dcc.RadioItems(
                 id="order_top",
                 options=[
-                    {"label": "ascending", "value": "asc"},
-                    {"label": "descending", "value": "dsc"}
+                    {"label": "Ascending", "value": "asc"},
+                    {"label": "Descending", "value": "dsc"}
                 ],
                 value="asc",
                 inputStyle={"margin-left": "100px", "margin-right": "10px"},
             ),
             html.Iframe(
                 id="figure_0",
-                style={"border-width": "0", "width": "200%", "height": "500px"},
+                style={"border-width": "0", "width": "200%", "height": "470px"},
                 srcDoc=selection_barplot(column_name="Ladder score", region="Western Europe")
             )
         ])
@@ -271,19 +276,17 @@ app.layout = dbc.Container([
     ], id = "row_2")
 ])
 
-
-
-
 @app.callback(
     Output("figure_0", "srcDoc"),
     Output("figure_1_2", "srcDoc"),
+    Output("figure_1_1", "srcDoc"),
     Input("column_name", "value"),
     Input("region", "value"),
-    Input("order_top", "value")
+    Input("order_top", "value"),
+    Input("order_world", "value")
 ) 
-def update_output(col_name, region, order):
-    return selection_barplot(col_name, region, order), connected_charts(region)
-
+def update_output(col_name, region, order, order_world):
+    return selection_barplot(col_name, region, order), connected_charts(region), worldmap(region, order_world)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
