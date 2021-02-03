@@ -13,14 +13,16 @@ from vega_datasets import data
 
 current_directory = os.path.dirname(__file__)
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config["suppress_callback_exceptions"] = True
 server = app.server
+app.title = 'Immigration Agency'
 
 #reading the csv file
 df = pd.read_csv(
     os.path.join(current_directory, "../data/processed/happiness_merge_all.csv")
 )
+
 #getting columns as preferences to be shown in dropdown menu
 preferences = ['Ladder score',
  'Logged GDP per capita',
@@ -42,6 +44,7 @@ preferences = ['Ladder score',
 
 #getting region names to be shown in dropdown menu
 region_names = list(df["Regional indicator"].unique())
+region_names.append("All")
 
 def worldmap(country_ids=df.copy()):
     """[Create worldmap for country happiness scores]
@@ -61,18 +64,20 @@ def worldmap(country_ids=df.copy()):
     country_ids = country_ids[country_ids['Ladder score'] != "mo"].sort_values(by="Ladder score", ascending = False)
     country_ids = country_ids.reset_index(drop = True)
     country_ids['Hapiness World Rank'] = pd.Series(range(1,101))
+
     
-    map_click = alt.selection_multi()
+    #map_click = alt.selection_multi()
     chart = (
     (alt.Chart(world_map, title="World Happiness Ranking").mark_geoshape().transform_lookup(
         lookup='id',
         from_=alt.LookupData(country_ids, 'id', ['Country', 'Hapiness World Rank']))
      .encode(tooltip=['Country:N', 'Hapiness World Rank:Q'], 
              color='Hapiness World Rank:Q',
-             opacity=alt.condition(map_click, alt.value(1), alt.value(0.2)))
+             #opacity=alt.condition(map_click, alt.value(1), alt.value(0.2))
+            )
      .configure_legend(orient='bottom')
      .configure_title(fontSize=20)
-     .add_selection(map_click)
+     #.add_selection(map_click)
      .project('equalEarth', scale=90))
     )
     return chart.to_html()
@@ -94,15 +99,23 @@ def selection_barplot(column_name, region="Western Europe", df=df.copy()):
     [altair chart]
         [altair chart to html]
     """
-    region_df = df[df["Regional indicator"] == region]
+    if region == "All":
+        region_df = df
+    else:
+        region_df = df[df["Regional indicator"] == region]
+    
+
+    sorted_df_pre = region_df.sort_values(by=[column_name])
+    sorted_df_pre = sorted_df_pre.head(20)
     chart = (
-        alt.Chart(region_df, title="Countries within the Region, Ranked by Your Preference")
+        alt.Chart(sorted_df_pre, title="Countries within the Region, Ranked by Your Preference")
         .mark_bar()
         .encode(
             x=alt.X(column_name),
             y=alt.Y("Country", sort="-x", title=""),
-            color=alt.Color("Country", scale = alt.Scale(scheme='tealblues'))
-        ).configure_title(fontSize=16)
+            color=alt.Color(column_name, scale = alt.Scale(scheme='tealblues', reverse=True), legend = None),
+            tooltip=column_name
+        ).interactive().configure_title(fontSize=16)
     )
     return chart.to_html()
 
@@ -121,8 +134,13 @@ def connected_charts(region = 'Western Europe', df = df.copy()):
     [altair chart]
         [combined altair charts with added selection by union]
     """
-    region_df = df[df['Regional indicator']==region]
+    if region == "All":
+        region_df = df
+    else:
+        region_df = df[df['Regional indicator']==region]
+
     sorted_df = region_df.sort_values(by=['Ladder score'])
+    sorted_df = sorted_df.head(20)
 
     click = alt.selection_multi(fields = ['Country'], resolve = 'union')
     
@@ -141,14 +159,15 @@ def connected_charts(region = 'Western Europe', df = df.copy()):
         y = alt.Y('Country', title="", sort = alt.EncodingSortField(field="Ladder score", order = "descending")),
         x = alt.X('xmin:Q', scale = alt.Scale(zero = False), title='Happiness Score'),
         x2 = 'xmax:Q',
-        color = alt.condition(click, 'Country', alt.value('lightturquoise'), scale = alt.Scale(scheme='tealblues')),
+        color = alt.condition(click, 'Country', alt.value('lightturquoise'), scale = alt.Scale(scheme='tealblues'), legend = None),
         size = alt.condition(click, alt.value(7), alt.value(1))
         ).properties(width=270)
 
     error_chart = (chart + points)
 
+
     density_chart = (
-        alt.Chart(region_df, title="Ranked by Population Density")
+        alt.Chart(sorted_df, title="Ranked by Population Density")
         .mark_bar()
         .encode(
             x = alt.X('Density (P/Km²)'),
@@ -207,11 +226,12 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H6("Click on the worldmap to see happiness score index:"),
+            html.P("Note: Only the countries with data available are showing in world map."),  
             html.Iframe(
                 id="figure_1_1", 
                 style={"border-width": "0", "width": "100%", "height": "500px"},
                 srcDoc=worldmap(),
-                )                
+                ),     
             ], md=6),
         dbc.Col([
             html.H6("Countries within the selected region with respect to preference:"),
