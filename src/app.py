@@ -44,7 +44,7 @@ preferences = ['Ladder score',
 
 #getting region names to be shown in dropdown menu
 region_names = list(df["Regional indicator"].unique())
-region_names.append("All")
+region_names.append("Top 20 Countries")
 
 def worldmap(country_ids=df.copy()):
     """[Create worldmap for country happiness scores]
@@ -82,7 +82,7 @@ def worldmap(country_ids=df.copy()):
     )
     return chart.to_html()
 
-def selection_barplot(column_name, region="Western Europe", df=df.copy()):
+def selection_barplot(column_name, region="Top 20 Countries", order = "asc", df=df.copy()):
     """[Creates the bar plot for the selected region and feature]
 
     Parameters
@@ -99,27 +99,34 @@ def selection_barplot(column_name, region="Western Europe", df=df.copy()):
     [altair chart]
         [altair chart to html]
     """
-    if region == "All":
+    if region == "Top 20 Countries":
         region_df = df
     else:
         region_df = df[df["Regional indicator"] == region]
     
-
     sorted_df_pre = region_df.sort_values(by=[column_name])
+    
+    if order =="asc":
+        sorting = "x"
+        sorted_df_pre = region_df.sort_values(by=[column_name])
+    else:
+        sorting = "-x"
+        sorted_df_pre = region_df.sort_values(by=[column_name], ascending = False)
+    
     sorted_df_pre = sorted_df_pre.head(20)
     chart = (
         alt.Chart(sorted_df_pre, title="Countries within the Region, Ranked by Your Preference")
         .mark_bar()
         .encode(
             x=alt.X(column_name),
-            y=alt.Y("Country", sort="-x", title=""),
+            y=alt.Y("Country", sort=sorting, title=""),
             color=alt.Color(column_name, scale = alt.Scale(scheme='tealblues', reverse=True), legend = None),
             tooltip=column_name
         ).interactive().configure_title(fontSize=16)
     )
     return chart.to_html()
 
-def connected_charts(region = 'Western Europe', df = df.copy()):
+def connected_charts(region = 'Top 20 Countries', df = df.copy()):
     """[Creates two connected altair charts, one for happiness score and other for population density for countries in selected region]
 
     Parameters
@@ -134,7 +141,7 @@ def connected_charts(region = 'Western Europe', df = df.copy()):
     [altair chart]
         [combined altair charts with added selection by union]
     """
-    if region == "All":
+    if region == "Top 20 Countries":
         region_df = df
     else:
         region_df = df[df['Regional indicator']==region]
@@ -206,7 +213,7 @@ app.layout = dbc.Container([
             html.H6("Select a region to explore:"),
             dcc.Dropdown(
                 id="region",
-                value="Western Europe",
+                value="Top 20 Countries",
                 options=[{"label": name, "value": name} for name in region_names],
             ),
         ]),
@@ -215,7 +222,7 @@ app.layout = dbc.Container([
 
             dcc.Dropdown(
                 id="column_name",
-                value="Ladder score",
+                value="Cost of Living Index",
                 options=[{"label": name, "value": name} for name in preferences],
             )
         ])
@@ -235,6 +242,15 @@ app.layout = dbc.Container([
             ], md=6),
         dbc.Col([
             html.H6("Countries within the selected region with respect to preference:"),
+            dcc.RadioItems(
+                id="order_top",
+                options=[
+                    {"label": "ascending", "value": "asc"},
+                    {"label": "descending", "value": "dsc"}
+                ],
+                value="asc",
+                inputStyle={"margin-left": "100px", "margin-right": "10px"},
+            ),
             html.Iframe(
                 id="figure_0",
                 style={"border-width": "0", "width": "200%", "height": "500px"},
@@ -263,9 +279,10 @@ app.layout = dbc.Container([
     Output("figure_1_2", "srcDoc"),
     Input("column_name", "value"),
     Input("region", "value"),
+    Input("order_top", "value")
 ) 
-def update_output(col_name, region):
-    return selection_barplot(col_name, region), connected_charts(region)
+def update_output(col_name, region, order):
+    return selection_barplot(col_name, region, order), connected_charts(region)
 
 
 if __name__ == "__main__":
