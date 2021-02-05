@@ -392,7 +392,6 @@ app.layout = dbc.Container(
             ],
             id="row_2",
         ),
-        html.Hr(),
         html.Div(
             children=[
                 html.P(
@@ -405,7 +404,8 @@ app.layout = dbc.Container(
                 "textAlign": "left",
                 "color": "black",
                 "border": "1px solid #d3d3d3",
-                "border-radius": "1px",
+                "border-radius": "4px",
+                "padding-left": "5px",
                 "background-color": "turquoise",
             },
         ),
@@ -430,4 +430,4 @@ def update_output(col_name, region, order, order_world):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)
