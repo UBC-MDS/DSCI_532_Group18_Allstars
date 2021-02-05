@@ -273,7 +273,7 @@ app.layout = dbc.Container(
             },
         ),
         html.H5(
-            children="This app is designed to explore world's happiness scores and the ranking of its related matrix to help user make  country specific decisions.",
+            children= ["Welcome! 🎉 Bienvenue! 🎈 Välkommen 👋", html.Br(), "This app is designed to explore world's happiness scores and the ranking of its related matrix to help user make  country specific decisions."],
             style={"textAlign": "center", "color": "black"},
         ),
         html.Br(),
@@ -376,7 +376,7 @@ app.layout = dbc.Container(
                 dbc.Col(
                     [
                         html.H6(
-                            "Country-to-Country Comparison: click on the plot to make direct comparison between countries:"
+                            "Country-to-Country Comparison: click on the plot to make direct comparison between countries: (Shift + click to select multiple countries)"
                         ),
                         html.Iframe(
                             id="figure_1_2",
@@ -396,21 +396,14 @@ app.layout = dbc.Container(
         html.Div(
             children=[
                 html.P(
-                    "This dashboard was made collaboratively by the DSCI 532 Group 18 in 2021 (UBC-MDS).",
+                    f"This dashboard was made collaboratively by Deepak Sidhu, Nicholas Wu, William Xu, Zeliha Ural Merpez. Latest upate : {datetime.now().date()}",
                 ),
-                dcc.Link(
-                    "Data Source ",
-                    href="https://www.kaggle.com/mathurinache/world-happiness-report",
-                ),
-                html.Br(),
-                dcc.Link(
-                    "Github Repo",
-                    href="https://github.com/UBC-MDS/DSCI_532_Group18_Allstars",
-                ),
+                html.Div([html.A('Data Source', href='https://www.kaggle.com/mathurinache/world-happiness-report', target='_blank')]),
+                html.Div([html.A('Github Repo', href='https://github.com/UBC-MDS/DSCI_532_Group18_Allstars', target='_blank')])
             ],
             style={
                 "textAlign": "left",
-                "color": "white",
+                "color": "black",
                 "border": "1px solid #d3d3d3",
                 "border-radius": "1px",
                 "background-color": "turquoise",
@@ -418,7 +411,6 @@ app.layout = dbc.Container(
         ),
     ]
 )
-
 
 @app.callback(
     Output("figure_0", "srcDoc"),
