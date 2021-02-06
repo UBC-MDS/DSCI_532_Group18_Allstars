@@ -41,7 +41,7 @@ make an informative decision.
 
 Initially, we planned to plot two pie charts that help the user visualize the 
 proportion between population and migrants of each country. This has been left 
-out due to time and space constraint. We 
+out due to time and space constraint. 
 
 Some countries are not showing on the world map due to missing data in our data 
 set. We have added a note on top of the world map to communicate the underlying 
