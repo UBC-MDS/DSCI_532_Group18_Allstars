@@ -8,13 +8,13 @@ Deepak Sidhu, Nicholas Wu, William Xu, Zeliha Ural Merpez
 
 Our group decided to continue working on the Python version of our dashboard. 
 This is mainly because dash in Python is generally easier to work with. 
-Specifically, because we plan to implement a data table that shows country 
+Specifically, because we plan to implement a data table that shows country- 
 specific data from the happiness data set, we felt that using Altair and Python 
 would be a better choice for implementation. In addition, we also felt that 
-dashboard in Python is easier to debug and faster deploy. When researching on 
-coding problems, it also seems that there are more supporting resources on dash 
-for Python/Altair than for R/ggplotly. Based on the above, we utimately chose to 
-continue to improve on our Python version of the dashboard. 
+dashboard in Python is easier to debug and faster to deploy. When researching on 
+coding problems, it also seems that there are generally more supporting 
+resources on dash for Python/Altair than for R/ggplotly. Based on the above, we 
+ultimately chose to continue to improve on our Python version of the dashboard. 
 
 ## What We Have Implemented
 
@@ -29,10 +29,10 @@ region selection bar. Combining this option with the "Ascending" and
 "Descending" buttons on top of the bar chart, a user will be able to expand 
 their exploration zone and see both top and bottom rankings of any matrix. 
 
-In the country-to-country comparison, we added the data table as an widget at 
-the bottom right of the dashboard. If a user simultaneously hold the SHIFT key
-and click on either the happiness score or the density plot, the data table 
-widget will show the rent and cost index of highlighted countries in a table. 
+In the country-to-country comparison, we added the data table as a widget at 
+the bottom right of the dashboard. If a user simultaneously holds the SHIFT key
+and clicks on either the happiness score or the density plot, the data table 
+widget will show the rent and cost index of highlighted countries in two columns. 
 This helps the user to explore two more matrices among countries and 
 make an informative decision. 
 
@@ -41,7 +41,7 @@ make an informative decision.
 
 Initially, we planned to plot two pie charts that help the user visualize the 
 proportion between population and migrants of each country. This has been left 
-out due to time and space constraint. We 
+out due to time and space constraint. 
 
 Some countries are not showing on the world map due to missing data in our data 
 set. We have added a note on top of the world map to communicate the underlying 
