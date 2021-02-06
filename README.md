@@ -51,6 +51,6 @@ If you would like to install our app and run it locally using Altair and Dash. W
 
 ## Thank you
 Thank you so much(Merci beaucoup! Tack så mycket!) for visiting out project repository. We hope that you will join us on this fabuluous journey to find the country you love for immigration!
-<br>*We would like to give special thanks to Joel Ostblom for all the help and support on the development of our happiness app!*
+<br>*We would like to give special thanks to [Joel Ostblom](https://joelostblom.com/) for all the help and support on the development of our happiness app!*
 
 [link_william]: https://github.com/williamxu7
