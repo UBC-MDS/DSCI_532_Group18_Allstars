@@ -10,7 +10,7 @@ Thank you for visiting the Country Happiness Visualization app project repositor
 <br> *Here is a link to our app:* https://immigration-dash-app.herokuapp.com/
 <br>
 <br>
-<img src="images/happiness_in_the_air.gif" />
+<img src="images/happiness_optimized.gif" />
 
 
 This document is a hub for more information about our app. You can click to links in the sections below, or just scroll down to explore.
